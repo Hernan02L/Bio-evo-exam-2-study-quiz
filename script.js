@@ -2,69 +2,24 @@
 const allQuestions = [
     {
         lecture: "10",
-        question: "What does the Cambrian Explosion mark?",
-        choices: [
-            "Appearance of reptiles",
-            "Sudden appearance of modern animal phyla",
-            "Extinction of dinosaurs",
-            "First human ancestors"
-        ],
-        answer: 1
-    },
-    {
-        lecture: "10",
-        question: "Which group were bipedal predators?",
-        choices: [
-            "Ornithischia",
-            "Theropoda",
-            "Sauropodomorpha",
-            "Cenozoans"
-        ],
-        answer: 1
-    },
-    {
-        lecture: "16",
-        question: "Why is folate important in human reproduction?",
-        choices: [
-            "It aids in digestion",
-            "It helps absorb calcium",
-            "It is necessary for DNA synthesis during early development",
-            "It promotes testosterone"
-        ],
-        answer: 2
-    },
-    {
-        lecture: "17",
-        question: "Who showed most genetic variation is within populations?",
-        choices: [
-            "Mary-Claire King",
-            "Richard Lewontin",
-            "Rebecca Cann",
-            "Louis Agassiz"
-        ],
-        answer: 1
-    },
-    {
-        lecture: "17",
-        question: "What does polygenism claim?",
-        choices: [
-            "That all humans came from one region",
-            "That different races have separate evolutionary origins",
-            "That humans evolved from chimps",
-            "That genes have no racial link"
-        ],
-        answer: 1
+        question: "What is significant about the Cambrian Explosion?",
+        choices: ["Dinosaur extinction", "Rise of mammals", "Appearance of modern animal phyla", "Origin of plants"],
+        answer: 2,
+        explanation: "The Cambrian Explosion marks a rapid appearance of most major animal groups in the fossil record."
     },
     {
         lecture: "14",
         question: "What does lactase persistence allow?",
-        choices: [
-            "Digestion of meat",
-            "Continued lactose digestion in adulthood",
-            "Skin tanning",
-            "Resistance to malaria"
-        ],
-        answer: 1
+        choices: ["Digestion of meat", "Continued lactose digestion in adulthood", "Skin tanning", "Resistance to malaria"],
+        answer: 1,
+        explanation: "Lactase persistence allows adults to digest milk, a trait beneficial in some pastoralist societies."
+    },
+    {
+        lecture: "17",
+        question: "Where is the most human genetic variation found?",
+        choices: ["Europe", "Asia", "Africa", "South America"],
+        answer: 2,
+        explanation: "Africa contains the most human genetic diversity due to its role as the origin of modern humans."
     }
 ];
 
@@ -89,7 +44,7 @@ function loadQuestion() {
         const btn = document.createElement("button");
         btn.textContent = choice;
         btn.className = "choice-btn";
-        btn.onclick = () => checkAnswer(index);
+        btn.onclick = () => checkAnswer(index, btn);
         choicesDiv.appendChild(btn);
     });
     document.getElementById("feedback").textContent = "";
@@ -97,20 +52,27 @@ function loadQuestion() {
     document.getElementById("total").textContent = filteredQuestions.length;
 }
 
-function checkAnswer(selected) {
+function checkAnswer(selected, buttonEl) {
     const q = filteredQuestions[currentQuestion];
     const feedback = document.getElementById("feedback");
+    const buttons = document.querySelectorAll(".choice-btn");
+    buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === q.answer) btn.classList.add("correct");
+    });
+
     if (selected === q.answer) {
         score++;
         feedback.textContent = "Correct!";
         feedback.style.color = "green";
     } else {
-        feedback.textContent = "Incorrect.";
+        buttonEl.classList.add("incorrect");
+        feedback.textContent = `Incorrect. ${q.explanation}`;
         feedback.style.color = "red";
     }
+
     document.getElementById("score").textContent = score;
     document.getElementById("next-btn").style.display = "inline";
-    document.querySelectorAll(".choice-btn").forEach(btn => btn.disabled = true);
 }
 
 function nextQuestion() {

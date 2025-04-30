@@ -1,39 +1,55 @@
 
 body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
+    font-family: 'Segoe UI', sans-serif;
+    background: #e7ecf0;
+    margin: 0;
+    padding: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
+    justify-content: center;
+    min-height: 100vh;
 }
 .container {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 95%;
+    max-width: 650px;
 }
-#quiz-box {
-    margin-bottom: 10px;
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
 }
-button {
-    padding: 10px 15px;
-    margin-top: 10px;
+select, button {
+    font-size: 16px;
 }
 .choice-btn {
-    display: block;
-    margin: 5px 0;
-    padding: 10px;
-    background: #eee;
+    width: 100%;
+    margin: 8px 0;
+    padding: 12px;
     border: none;
+    border-radius: 6px;
+    background-color: #f1f1f1;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 .choice-btn:hover {
-    background: #ddd;
+    background-color: #dcdcdc;
+}
+.correct {
+    background-color: #c8e6c9 !important;
+}
+.incorrect {
+    background-color: #ffcdd2 !important;
 }
 #feedback {
-    margin-top: 10px;
+    margin-top: 12px;
     font-weight: bold;
+}
+#next-btn, #score-box, #reset-btn {
+    display: block;
+    margin-top: 20px;
+    width: 100%;
 }
