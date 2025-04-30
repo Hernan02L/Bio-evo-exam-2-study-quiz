@@ -2,75 +2,83 @@
 const allQuestions = [
     {
         lecture: "10",
-        question: "What is the Cambrian Explosion known for?",
+        question: "What does the Cambrian Explosion mark?",
         choices: [
-            "Dinosaur extinction",
-            "The rise of mammals",
+            "Appearance of reptiles",
             "Sudden appearance of modern animal phyla",
-            "First hominin migration"
+            "Extinction of dinosaurs",
+            "First human ancestors"
         ],
-        answer: 2
+        answer: 1
     },
     {
         lecture: "10",
-        question: "What trait characterizes the Theropoda?",
+        question: "Which group were bipedal predators?",
         choices: [
-            "Plant eating with horny bills",
-            "Bipedal predators",
-            "Long necks and massive size",
-            "Large brain size"
+            "Ornithischia",
+            "Theropoda",
+            "Sauropodomorpha",
+            "Cenozoans"
         ],
         answer: 1
     },
     {
         lecture: "16",
-        question: "What is melanin's function in human skin?",
+        question: "Why is folate important in human reproduction?",
         choices: [
-            "Promotes vitamin C production",
-            "Breaks down folate",
-            "Protects against UV damage",
-            "Helps produce hair"
+            "It aids in digestion",
+            "It helps absorb calcium",
+            "It is necessary for DNA synthesis during early development",
+            "It promotes testosterone"
         ],
         answer: 2
     },
     {
         lecture: "17",
-        question: "What did Richard Lewontin's research show?",
+        question: "Who showed most genetic variation is within populations?",
         choices: [
-            "Humans and chimps share 90% DNA",
-            "Most genetic variation is between races",
-            "Most genetic variation is within local populations",
-            "Races are biologically distinct species"
-        ],
-        answer: 2
-    },
-    {
-        lecture: "17",
-        question: "In which human population is heterozygosity the highest?",
-        choices: [
-            "Europeans",
-            "Africans",
-            "Asians",
-            "Native Americans"
+            "Mary-Claire King",
+            "Richard Lewontin",
+            "Rebecca Cann",
+            "Louis Agassiz"
         ],
         answer: 1
     },
     {
         lecture: "17",
-        question: "What does polygenism propose?",
+        question: "What does polygenism claim?",
         choices: [
-            "All humans evolved from one population",
-            "Different races evolved independently",
-            "Humans evolved in Asia",
-            "Skin color has no genetic basis"
+            "That all humans came from one region",
+            "That different races have separate evolutionary origins",
+            "That humans evolved from chimps",
+            "That genes have no racial link"
+        ],
+        answer: 1
+    },
+    {
+        lecture: "14",
+        question: "What does lactase persistence allow?",
+        choices: [
+            "Digestion of meat",
+            "Continued lactose digestion in adulthood",
+            "Skin tanning",
+            "Resistance to malaria"
         ],
         answer: 1
     }
 ];
 
-let filteredQuestions = allQuestions;
+let filteredQuestions = [];
 let currentQuestion = 0;
 let score = 0;
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
 
 function loadQuestion() {
     const q = filteredQuestions[currentQuestion];
@@ -102,8 +110,7 @@ function checkAnswer(selected) {
     }
     document.getElementById("score").textContent = score;
     document.getElementById("next-btn").style.display = "inline";
-    const buttons = document.querySelectorAll(".choice-btn");
-    buttons.forEach(btn => btn.disabled = true);
+    document.querySelectorAll(".choice-btn").forEach(btn => btn.disabled = true);
 }
 
 function nextQuestion() {
@@ -116,16 +123,27 @@ function nextQuestion() {
 }
 
 function filterQuestions() {
-    const selectedLecture = document.getElementById("lecture-select").value;
-    if (selectedLecture === "all") {
-        filteredQuestions = allQuestions;
-    } else {
-        filteredQuestions = allQuestions.filter(q => q.lecture === selectedLecture);
-    }
+    const selected = document.getElementById("lecture-select").value;
+    filteredQuestions = selected === "all"
+        ? shuffle([...allQuestions])
+        : shuffle(allQuestions.filter(q => q.lecture === selected));
+    resetQuiz();
+}
+
+function resetQuiz() {
     currentQuestion = 0;
     score = 0;
     document.getElementById("score").textContent = score;
+    document.getElementById("quiz-box").innerHTML = `
+        <div id="question"></div>
+        <div id="choices"></div>
+        <div id="feedback"></div>
+        <button id="next-btn" onclick="nextQuestion()">Next Question</button>
+    `;
     loadQuestion();
 }
 
-window.onload = loadQuestion;
+window.onload = () => {
+    filteredQuestions = shuffle([...allQuestions]);
+    loadQuestion();
+};
