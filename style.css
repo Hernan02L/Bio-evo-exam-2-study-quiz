@@ -1,7 +1,7 @@
 
 body {
     font-family: 'Segoe UI', sans-serif;
-    background: #e7ecf0;
+    background: #f0f4f8;
     margin: 0;
     padding: 0;
     display: flex;
@@ -10,33 +10,35 @@ body {
     min-height: 100vh;
 }
 .container {
-    background: #fff;
+    background: #ffffff;
     padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
     width: 95%;
-    max-width: 650px;
+    max-width: 600px;
 }
 h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
     text-align: center;
+    margin-bottom: 20px;
 }
 select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
     font-size: 16px;
 }
 .choice-btn {
     width: 100%;
-    margin: 8px 0;
     padding: 12px;
+    margin: 8px 0;
     border: none;
-    border-radius: 6px;
-    background-color: #f1f1f1;
+    border-radius: 5px;
+    background: #f0f0f0;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background 0.3s;
 }
 .choice-btn:hover {
-    background-color: #dcdcdc;
+    background: #d8d8d8;
 }
 .correct {
     background-color: #c8e6c9 !important;
@@ -45,11 +47,6 @@ select, button {
     background-color: #ffcdd2 !important;
 }
 #feedback {
-    margin-top: 12px;
+    margin-top: 15px;
     font-weight: bold;
-}
-#next-btn, #score-box, #reset-btn {
-    display: block;
-    margin-top: 20px;
-    width: 100%;
 }
