@@ -1098,6 +1098,8 @@ const allQuestions = [
     ...lecture17Questions
 ];
 
+// ... (keep all question arrays and allQuestions declaration)
+
 let filteredQuestions = [];
 let currentQuestion = 0;
 let score = 0;
@@ -1111,6 +1113,8 @@ function shuffle(array) {
 }
 
 function loadQuestion() {
+    if (filteredQuestions.length === 0) return;
+    
     const q = filteredQuestions[currentQuestion];
     const questionEl = document.getElementById("question");
     const choicesDiv = document.getElementById("choices");
@@ -1141,14 +1145,11 @@ function loadQuestion() {
                 
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
-                checkbox.id = `choice-${index}`;
                 checkbox.value = index;
                 
                 const label = document.createElement("label");
-                label.htmlFor = `choice-${index}`;
                 label.textContent = choice;
-                
-                container.appendChild(checkbox);
+                label.prepend(checkbox);
                 container.appendChild(label);
                 choicesDiv.appendChild(container);
             });
@@ -1173,7 +1174,7 @@ function loadQuestion() {
                     document.querySelectorAll('#choices input:checked')
                 ).map(el => parseInt(el.value));
                 checkAnswer(selected);
-            } else if (q.type === "shortanswer") {
+            } else {
                 const answer = document.querySelector('#choices textarea').value;
                 checkAnswer(answer);
             }
@@ -1200,7 +1201,7 @@ function checkAnswer(selected) {
             const correct = selected.filter(val => q.answers.includes(val)).length;
             const incorrect = selected.filter(val => !q.answers.includes(val)).length;
             pointsEarned = Math.max(0, (correct / q.answers.length) - (incorrect * 0.25));
-            feedback.innerHTML = `${q.explanation}<br>Score: ${(pointsEarned * 100).toFixed(0)}%`;
+            feedback.innerHTML = `${q.explanation}<br>Score: ${Math.round(pointsEarned * 100)}%`;
             break;
 
         case "shortanswer":
@@ -1219,23 +1220,6 @@ function checkAnswer(selected) {
     feedback.classList.add("show");
 }
 
-// ... keep the rest of your functions (nextQuestion, resetQuiz, filterQuestions, updateProgress) unchanged
-    
-    // Show feedback and next button
-    feedback.innerHTML = `${q.explanation}`;
-    document.getElementById("next-btn").style.display = "inline-flex";
-    score += pointsEarned;
-    document.getElementById("score").textContent = score;
-}
-
-    // Update score and UI
-    score += pointsEarned;
-    document.getElementById("score").textContent = score;
-    document.getElementById("total").textContent = filteredQuestions.length;
-    document.getElementById("next-btn").style.display = "inline-flex";
-    feedback.classList.add("show");
-}
-
 function nextQuestion() {
     currentQuestion++;
     if (currentQuestion < filteredQuestions.length) {
@@ -1243,7 +1227,7 @@ function nextQuestion() {
     } else {
         document.getElementById("quiz-box").innerHTML = `
             <h2>Quiz Complete!</h2>
-            <p>Your score: ${score}/${filteredQuestions.length}</p>
+            <p>Your score: ${Math.round(score)}/${filteredQuestions.length}</p>
             <button onclick="resetQuiz()" class="btn-primary">
                 <i class="fas fa-redo"></i> Try Again
             </button>
@@ -1257,32 +1241,24 @@ function resetQuiz() {
     filterQuestions();
 }
 
-// Update the filterQuestions function
 function filterQuestions() {
     const selected = document.getElementById("lecture-select").value;
-    
-    // Always start with a fresh copy of ALL questions
     let baseQuestions = [...allQuestions];
     
-    // Filter if not "all"
     if (selected !== "all") {
         baseQuestions = baseQuestions.filter(q => q.lecture === selected);
     }
     
-    // Shuffle and update
     filteredQuestions = shuffle(baseQuestions);
-    
-    // Reset counters
     currentQuestion = 0;
     score = 0;
     document.getElementById("score").textContent = score;
     document.getElementById("total").textContent = filteredQuestions.length;
-    
-    // Load first question
     loadQuestion();
 }
+
 function updateProgress() {
-    if (filteredQuestions.length === 0) return; // Prevent division by zero
+    if (!filteredQuestions.length) return;
     const progress = ((currentQuestion + 1) / filteredQuestions.length) * 100;
     document.querySelector(".progress-bar").style.width = `${progress}%`;
     document.getElementById("progress-text").textContent = 
@@ -1290,13 +1266,8 @@ function updateProgress() {
 }
 
 window.onload = () => {
-    // Initialize lecture selector
     const lectureSelect = document.getElementById("lecture-select");
     lectureSelect.value = "all";
-    
-    // Load questions and start quiz
-    filterQuestions(); // Initialize with all questions
-    
-    // Add event listener for lecture changes
+    filterQuestions();
     lectureSelect.addEventListener("change", filterQuestions);
 };
