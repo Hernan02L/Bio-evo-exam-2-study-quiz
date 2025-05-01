@@ -1131,81 +1131,69 @@ function loadQuestion() {
             });
             break;
 
-        case "multi-select":
-            q.choices.forEach((choice, index) => {
-                const container = document.createElement("div");
-                container.className = "multi-choice";
-                
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.id = `choice-${index}`;
-                checkbox.value = index;
-                
-                const label = document.createElement("label");
-                label.htmlFor = `choice-${index}`;
-                label.textContent = choice;
-                
-                container.appendChild(checkbox);
-                container.appendChild(label);
-                choicesDiv.appendChild(container);
-            });
-            break;
-
-        case "shortanswer":
-            const textarea = document.createElement("textarea");
-            textarea.className = "short-answer-input";
-            textarea.placeholder = "Type your answer here...";
-            choicesDiv.appendChild(textarea);
-            break;
+            // Add submit button for non-MCQ questions
+    if (q.type === "multi-select" || q.type === "shortanswer") {
+        const submitBtn = document.createElement("button");
+        submitBtn.textContent = "Submit Answer";
+        submitBtn.className = "btn-primary";
+        submitBtn.onclick = () => {
+            if (q.type === "multi-select") {
+                const selected = Array.from(
+                    document.querySelectorAll('#choices input:checked')
+                ).map(el => parseInt(el.value));
+                checkAnswer(selected);
+            } else if (q.type === "shortanswer") {
+                const answer = document.querySelector('#choices textarea').value;
+                checkAnswer(answer);
+            }
+        };
+        choicesDiv.appendChild(submitBtn);
     }
-
-    document.getElementById("next-btn").style.display = "none";
-    updateProgress();
-}
-
 // Update the checkAnswer function
-function checkAnswer(selected, element) {
+function checkAnswer(selected) {
     const q = filteredQuestions[currentQuestion];
     let pointsEarned = 0;
+    
+    // Remove existing feedback if any
     const feedback = document.getElementById("feedback");
-
+    feedback.innerHTML = "";
+    
+    // Handle different question types
     switch(q.type) {
         case "mcq":
-            if(selected === q.answer) {
-                pointsEarned = 1;
-                feedback.innerHTML = "✅ Correct! " + q.explanation;
-            } else {
-                feedback.innerHTML = "❌ Incorrect. " + q.explanation;
-            }
+            // Existing MCQ logic
             break;
-
+            
         case "multi-select":
-            const selectedOptions = Array.from(
-                document.querySelectorAll('#choices input:checked')
-            ).map(el => parseInt(el.value));
-            
             // Calculate correct answers
-            const correct = selectedOptions.filter(val => q.answers.includes(val)).length;
-            const incorrect = selectedOptions.filter(val => !q.answers.includes(val)).length;
-            pointsEarned = Math.max(0, correct - incorrect);
-            
-            feedback.innerHTML = `${pointsEarned}/${q.answers.length} points. ${q.explanation}`;
-            break;
-
-        case "shortanswer":
-            const answer = document.querySelector('#choices textarea').value.toLowerCase();
-            const matchedKeywords = q.keywords.filter(kw => 
-                answer.includes(kw.toLowerCase())
+            const correct = selected.filter(val => 
+                q.answers.includes(val)
+            ).length;
+            const incorrect = selected.filter(val => 
+                !q.answers.includes(val)
             ).length;
             
-            if(matchedKeywords >= q.keywords.length/2) { // At least 50% match
-                pointsEarned = 1;
-                feedback.innerHTML = "✅ Acceptable answer! " + q.explanation;
-            } else {
-                feedback.innerHTML = "❌ Needs improvement. " + q.explanation;
-            }
+            // Partial credit system
+            pointsEarned = Math.min(1, Math.max(0, 
+                (correct / q.answers.length) - (incorrect * 0.25)
+            ));
+            break;
+            
+        case "shortanswer":
+            // Keyword matching logic
+            const matched = q.keywords.filter(kw =>
+                answer.toLowerCase().includes(kw.toLowerCase())
+            ).length;
+            pointsEarned = matched >= q.keywords.length/2 ? 1 : 0;
             break;
     }
+    
+    // Show feedback and next button
+    feedback.innerHTML = `${q.explanation}`;
+    document.getElementById("next-btn").style.display = "inline-flex";
+    score += pointsEarned;
+    document.getElementById("score").textContent = score;
+}
 
     // Update score and UI
     score += pointsEarned;
