@@ -76,8 +76,9 @@ body {
     display: block;
     height: 100%;
     width: 0%;
-    background-color: var(--primary-color);
+    background: linear-gradient(90deg, #4361ee, #3f37c9);
     transition: width 0.4s ease;
+    border-radius: 5px; /* Add this line */
 }
 
 .progress-text {
