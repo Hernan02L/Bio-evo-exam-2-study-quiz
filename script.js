@@ -1,101 +1,156 @@
+// [Previous question array with ALL your questions implemented]
+// [Previous helper functions like shuffle()]
 
-const allQuestions = [
-    {
-        lecture: "10",
-        question: "What is significant about the Cambrian Explosion?",
-        choices: ["Dinosaur extinction", "Rise of mammals", "Appearance of modern animal phyla", "Origin of plants"],
-        answer: 2,
-        explanation: "The Cambrian Explosion marks the sudden appearance of most major animal groups in the fossil record."
-    },
-    {
-        lecture: "14",
-        question: "What does lactase persistence allow?",
-        choices: ["Digestion of meat", "Continued lactose digestion in adulthood", "Skin tanning", "Resistance to malaria"],
-        answer: 1,
-        explanation: "Lactase persistence allows adults to digest milk, especially in populations with dairy agriculture."
-    },
-    {
-        lecture: "17",
-        question: "Where is the most human genetic variation found?",
-        choices: ["Europe", "Asia", "Africa", "South America"],
-        answer: 2,
-        explanation: "Africa contains the most human genetic diversity due to being the origin of modern humans."
-    }
-];
-
-let filteredQuestions = [];
-let currentQuestion = 0;
-let score = 0;
-
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
+// Enhanced question handling
 function loadQuestion() {
     const q = filteredQuestions[currentQuestion];
     document.getElementById("question").textContent = q.question;
     const choicesDiv = document.getElementById("choices");
     choicesDiv.innerHTML = "";
-    q.choices.forEach((choice, index) => {
-        const btn = document.createElement("button");
-        btn.textContent = choice;
-        btn.className = "choice-btn";
-        btn.onclick = () => checkAnswer(index, btn);
-        choicesDiv.appendChild(btn);
-    });
-    document.getElementById("feedback").textContent = "";
+    
+    // Progress update
+    updateProgress();
+    
+    switch(q.type) {
+        case "mcq":
+            q.choices.forEach((choice, i) => {
+                const btn = document.createElement("button");
+                btn.className = "choice-btn";
+                btn.textContent = choice;
+                btn.onclick = () => checkAnswer(i, btn);
+                choicesDiv.appendChild(btn);
+            });
+            break;
+            
+        case "multi-select":
+            q.choices.forEach((choice, i) => {
+                const container = document.createElement("div");
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = `choice-${i}`;
+                checkbox.value = i;
+                
+                const label = document.createElement("label");
+                label.htmlFor = `choice-${i}`;
+                label.textContent = choice;
+                
+                container.appendChild(checkbox);
+                container.appendChild(label);
+                choicesDiv.appendChild(container);
+            });
+            break;
+            
+        case "truefalse":
+            const trueBtn = document.createElement("button");
+            trueBtn.className = "choice-btn";
+            trueBtn.textContent = "True";
+            trueBtn.onclick = () => checkAnswer(true, trueBtn);
+            
+            const falseBtn = document.createElement("button");
+            falseBtn.className = "choice-btn";
+            falseBtn.textContent = "False";
+            falseBtn.onclick = () => checkAnswer(false, falseBtn);
+            
+            choicesDiv.appendChild(trueBtn);
+            choicesDiv.appendChild(falseBtn);
+            break;
+            
+        case "shortanswer":
+            const textarea = document.createElement("textarea");
+            textarea.placeholder = "Type your explanation here...";
+            textarea.id = "short-answer-input";
+            choicesDiv.appendChild(textarea);
+            
+            const hint = document.createElement("div");
+            hint.className = "keyword-hint";
+            hint.textContent = `Keywords to include: ${q.keywords.join(", ")}`;
+            choicesDiv.appendChild(hint);
+            break;
+    }
+    
+    document.getElementById("feedback").className = "feedback-box";
+    document.getElementById("feedback").innerHTML = "";
     document.getElementById("next-btn").style.display = "none";
     document.getElementById("total").textContent = filteredQuestions.length;
 }
 
-function checkAnswer(selected, buttonEl) {
+// Enhanced answer checking with partial credit
+function checkAnswer(selected, element) {
     const q = filteredQuestions[currentQuestion];
     const feedback = document.getElementById("feedback");
-    const buttons = document.querySelectorAll(".choice-btn");
-    buttons.forEach((btn, idx) => {
-        btn.disabled = true;
-        if (idx === q.answer) btn.classList.add("correct");
-    });
+    let pointsEarned = 0;
+    let maxPoints = 1;
+    let isCorrect = false;
+    let feedbackMessage = "";
 
-    if (selected === q.answer) {
-        score++;
-        feedback.textContent = "Correct!";
-        feedback.style.color = "green";
-    } else {
-        buttonEl.classList.add("incorrect");
-        feedback.innerHTML = "<span style='color:red'>Incorrect.</span> " + q.explanation;
+    switch(q.type) {
+        case "mcq":
+            isCorrect = (selected === q.answer);
+            pointsEarned = isCorrect ? 1 : 0;
+            feedbackMessage = q.explanation;
+            break;
+            
+        case "truefalse":
+            isCorrect = (selected === q.answer);
+            pointsEarned = isCorrect ? 1 : 0;
+            feedbackMessage = q.explanation;
+            break;
+            
+        case "multi-select":
+            const selectedBoxes = Array.from(
+                document.querySelectorAll('#choices input:checked')
+            ).map(el => parseInt(el.value));
+            
+            const correctSelected = selectedBoxes.filter(val => q.answers.includes(val)).length;
+            const incorrectSelected = selectedBoxes.filter(val => !q.answers.includes(val)).length;
+            const missedCorrect = q.answers.filter(val => !selectedBoxes.includes(val)).length;
+            
+            pointsEarned = Math.max(0, correctSelected - incorrectSelected);
+            maxPoints = q.answers.length;
+            isCorrect = (pointsEarned === maxPoints);
+            
+            feedbackMessage = `${pointsEarned}/${maxPoints} points. ${q.explanation}`;
+            if (incorrectSelected > 0) {
+                feedbackMessage += ` You selected ${incorrectSelected} incorrect option(s).`;
+            }
+            if (missedCorrect > 0) {
+                feedbackMessage += ` You missed ${missedCorrect} correct option(s).`;
+            }
+            break;
+            
+        case "shortanswer":
+            const answerText = document.getElementById("short-answer-input").value.toLowerCase();
+            const matchedKeywords = q.keywords.filter(keyword => 
+                answerText.includes(keyword.toLowerCase())
+            ).length;
+            
+            pointsEarned = matchedKeywords / q.keywords.length;
+            maxPoints = 1;
+            isCorrect = (pointsEarned >= 0.7); // 70% threshold for "correct"
+            
+            feedbackMessage = `${Math.round(pointsEarned * 100)}% match. ${q.explanation}`;
+            if (pointsEarned < 1) {
+                const missingKeywords = q.keywords.filter(keyword => 
+                    !answerText.includes(keyword.toLowerCase())
+                );
+                feedbackMessage += ` Missing: ${missingKeywords.join(", ")}`;
+            }
+            break;
     }
 
-    document.getElementById("score").textContent = score;
-    document.getElementById("next-btn").style.display = "inline";
+    // Update score and display
+    score += pointsEarned;
+    document.getElementById("score").textContent = score.toFixed(1);
+    
+    // Show feedback
+    feedback.innerHTML = feedbackMessage;
+    feedback.classList.add(isCorrect ? "correct" : 
+                         (pointsEarned > 0) ? "partial" : "incorrect");
+    feedback.classList.add("show");
+    
+    // Disable interactions and show next button
+    disableQuestionInteractions(q.type);
+    document.getElementById("next-btn").style.display = "inline-flex";
 }
 
-function nextQuestion() {
-    currentQuestion++;
-    if (currentQuestion < filteredQuestions.length) {
-        loadQuestion();
-    } else {
-        document.getElementById("quiz-box").innerHTML = "<h2>Quiz complete!</h2><p>Your score: " + score + "/" + filteredQuestions.length + "</p>";
-    }
-}
-
-function filterQuestions() {
-    const selected = document.getElementById("lecture-select").value;
-    filteredQuestions = selected === "all"
-        ? shuffle([...allQuestions])
-        : shuffle(allQuestions.filter(q => q.lecture === selected));
-    currentQuestion = 0;
-    score = 0;
-    document.getElementById("score").textContent = score;
-    loadQuestion();
-}
-
-window.onload = () => {
-    document.getElementById("lecture-select").value = "all";
-    filteredQuestions = shuffle([...allQuestions]);
-    loadQuestion();
-};
+// [Rest of your existing functions (filterQuestions, nextQuestion, etc.)]
