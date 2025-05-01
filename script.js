@@ -1083,17 +1083,21 @@ const lecture17Questions = [
     }
 ];
 
+// ... (keep all your question arrays unchanged)
+
 // ========== UPDATE MAIN QUESTION ARRAY ==========
 const allQuestions = [
     ...lecture10Questions,
     ...lecture11Questions,
     ...lecture12Questions,
+    ...lecture12FossilQuestions, // Added missing fossil questions
     ...lecture13Questions,
     ...lecture14Questions,
     ...lecture15Questions,
     ...lecture16Questions,
-    ...lecture17Questions // Added
+    ...lecture17Questions
 ];
+
 let filteredQuestions = [];
 let currentQuestion = 0;
 let score = 0;
@@ -1106,7 +1110,6 @@ function shuffle(array) {
     return array;
 }
 
-// Updated loadQuestion function
 function loadQuestion() {
     const q = filteredQuestions[currentQuestion];
     const questionEl = document.getElementById("question");
@@ -1126,12 +1129,40 @@ function loadQuestion() {
                 const btn = document.createElement("button");
                 btn.className = "choice-btn";
                 btn.textContent = choice;
-                btn.onclick = () => checkAnswer(index, btn);
+                btn.onclick = () => checkAnswer(index);
                 choicesDiv.appendChild(btn);
             });
             break;
 
-            // Add submit button for non-MCQ questions
+        case "multi-select":
+            q.choices.forEach((choice, index) => {
+                const container = document.createElement("div");
+                container.className = "multi-choice";
+                
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = `choice-${index}`;
+                checkbox.value = index;
+                
+                const label = document.createElement("label");
+                label.htmlFor = `choice-${index}`;
+                label.textContent = choice;
+                
+                container.appendChild(checkbox);
+                container.appendChild(label);
+                choicesDiv.appendChild(container);
+            });
+            break;
+
+        case "shortanswer":
+            const textarea = document.createElement("textarea");
+            textarea.className = "short-answer-input";
+            textarea.placeholder = "Type your answer here...";
+            choicesDiv.appendChild(textarea);
+            break;
+    }
+
+    // Add submit button for non-MCQ questions
     if (q.type === "multi-select" || q.type === "shortanswer") {
         const submitBtn = document.createElement("button");
         submitBtn.textContent = "Submit Answer";
@@ -1149,44 +1180,46 @@ function loadQuestion() {
         };
         choicesDiv.appendChild(submitBtn);
     }
-// Update the checkAnswer function
+
+    document.getElementById("next-btn").style.display = "none";
+    updateProgress();
+}
+
 function checkAnswer(selected) {
     const q = filteredQuestions[currentQuestion];
     let pointsEarned = 0;
-    
-    // Remove existing feedback if any
     const feedback = document.getElementById("feedback");
-    feedback.innerHTML = "";
-    
-    // Handle different question types
+
     switch(q.type) {
         case "mcq":
-            // Existing MCQ logic
+            pointsEarned = (selected === q.answer) ? 1 : 0;
+            feedback.innerHTML = (pointsEarned ? "✅ Correct! " : "❌ Incorrect. ") + q.explanation;
             break;
-            
+
         case "multi-select":
-            // Calculate correct answers
-            const correct = selected.filter(val => 
-                q.answers.includes(val)
-            ).length;
-            const incorrect = selected.filter(val => 
-                !q.answers.includes(val)
-            ).length;
-            
-            // Partial credit system
-            pointsEarned = Math.min(1, Math.max(0, 
-                (correct / q.answers.length) - (incorrect * 0.25)
-            ));
+            const correct = selected.filter(val => q.answers.includes(val)).length;
+            const incorrect = selected.filter(val => !q.answers.includes(val)).length;
+            pointsEarned = Math.max(0, (correct / q.answers.length) - (incorrect * 0.25));
+            feedback.innerHTML = `${q.explanation}<br>Score: ${(pointsEarned * 100).toFixed(0)}%`;
             break;
-            
+
         case "shortanswer":
-            // Keyword matching logic
-            const matched = q.keywords.filter(kw =>
-                answer.toLowerCase().includes(kw.toLowerCase())
+            const matched = q.keywords.filter(kw => 
+                selected.toLowerCase().includes(kw.toLowerCase())
             ).length;
             pointsEarned = matched >= q.keywords.length/2 ? 1 : 0;
+            feedback.innerHTML = (pointsEarned ? "✅ Acceptable answer! " : "❌ Needs improvement. ") + q.explanation;
             break;
     }
+
+    score += pointsEarned;
+    document.getElementById("score").textContent = Math.round(score);
+    document.getElementById("total").textContent = filteredQuestions.length;
+    document.getElementById("next-btn").style.display = "inline-flex";
+    feedback.classList.add("show");
+}
+
+// ... keep the rest of your functions (nextQuestion, resetQuiz, filterQuestions, updateProgress) unchanged
     
     // Show feedback and next button
     feedback.innerHTML = `${q.explanation}`;
