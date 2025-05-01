@@ -1163,28 +1163,56 @@ function loadQuestion() {
     updateProgress();
 }
 
-function checkAnswer(selected, buttonEl) {
+// Update the checkAnswer function
+function checkAnswer(selected, element) {
     const q = filteredQuestions[currentQuestion];
+    let pointsEarned = 0;
     const feedback = document.getElementById("feedback");
-    const buttons = document.querySelectorAll(".choice-btn");
-    
-    buttons.forEach((btn, idx) => {
-        btn.disabled = true;
-        if (idx === q.answer) btn.classList.add("correct");
-    });
 
-    if (selected === q.answer) {
-        score++;
-        feedback.textContent = `✅ Correct! ${q.explanation}`;
-        feedback.style.color = "green";
-    } else {
-        buttonEl.classList.add("incorrect");
-        feedback.innerHTML = `<span style='color:red'>❌ Incorrect.</span> ${q.explanation}`;
+    switch(q.type) {
+        case "mcq":
+            if(selected === q.answer) {
+                pointsEarned = 1;
+                feedback.innerHTML = "✅ Correct! " + q.explanation;
+            } else {
+                feedback.innerHTML = "❌ Incorrect. " + q.explanation;
+            }
+            break;
+
+        case "multi-select":
+            const selectedOptions = Array.from(
+                document.querySelectorAll('#choices input:checked')
+            ).map(el => parseInt(el.value));
+            
+            // Calculate correct answers
+            const correct = selectedOptions.filter(val => q.answers.includes(val)).length;
+            const incorrect = selectedOptions.filter(val => !q.answers.includes(val)).length;
+            pointsEarned = Math.max(0, correct - incorrect);
+            
+            feedback.innerHTML = `${pointsEarned}/${q.answers.length} points. ${q.explanation}`;
+            break;
+
+        case "shortanswer":
+            const answer = document.querySelector('#choices textarea').value.toLowerCase();
+            const matchedKeywords = q.keywords.filter(kw => 
+                answer.includes(kw.toLowerCase())
+            ).length;
+            
+            if(matchedKeywords >= q.keywords.length/2) { // At least 50% match
+                pointsEarned = 1;
+                feedback.innerHTML = "✅ Acceptable answer! " + q.explanation;
+            } else {
+                feedback.innerHTML = "❌ Needs improvement. " + q.explanation;
+            }
+            break;
     }
 
-    feedback.classList.add("show");
+    // Update score and UI
+    score += pointsEarned;
     document.getElementById("score").textContent = score;
+    document.getElementById("total").textContent = filteredQuestions.length;
     document.getElementById("next-btn").style.display = "inline-flex";
+    feedback.classList.add("show");
 }
 
 function nextQuestion() {
@@ -1208,13 +1236,17 @@ function resetQuiz() {
     filterQuestions();
 }
 
+// Update the filterQuestions function
 function filterQuestions() {
     const selected = document.getElementById("lecture-select").value;
     filteredQuestions = selected === "all" 
         ? shuffle([...allQuestions]) 
         : shuffle(allQuestions.filter(q => q.lecture === selected));
+    
     currentQuestion = 0;
     score = 0;
+    document.getElementById("score").textContent = score;
+    document.getElementById("total").textContent = filteredQuestions.length;
     loadQuestion();
 }
 
