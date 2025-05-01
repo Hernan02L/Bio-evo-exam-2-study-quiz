@@ -1227,18 +1227,29 @@ function resetQuiz() {
 // Update the filterQuestions function
 function filterQuestions() {
     const selected = document.getElementById("lecture-select").value;
-    filteredQuestions = selected === "all" 
-        ? shuffle([...allQuestions]) 
-        : shuffle(allQuestions.filter(q => q.lecture === selected));
     
+    // Always start with a fresh copy of ALL questions
+    let baseQuestions = [...allQuestions];
+    
+    // Filter if not "all"
+    if (selected !== "all") {
+        baseQuestions = baseQuestions.filter(q => q.lecture === selected);
+    }
+    
+    // Shuffle and update
+    filteredQuestions = shuffle(baseQuestions);
+    
+    // Reset counters
     currentQuestion = 0;
     score = 0;
     document.getElementById("score").textContent = score;
     document.getElementById("total").textContent = filteredQuestions.length;
+    
+    // Load first question
     loadQuestion();
 }
-
 function updateProgress() {
+    if (filteredQuestions.length === 0) return; // Prevent division by zero
     const progress = ((currentQuestion + 1) / filteredQuestions.length) * 100;
     document.querySelector(".progress-bar").style.width = `${progress}%`;
     document.getElementById("progress-text").textContent = 
@@ -1246,7 +1257,13 @@ function updateProgress() {
 }
 
 window.onload = () => {
-    document.getElementById("lecture-select").value = "all";
-    filteredQuestions = shuffle([...allQuestions]);
-    loadQuestion();
+    // Initialize lecture selector
+    const lectureSelect = document.getElementById("lecture-select");
+    lectureSelect.value = "all";
+    
+    // Load questions and start quiz
+    filterQuestions(); // Initialize with all questions
+    
+    // Add event listener for lecture changes
+    lectureSelect.addEventListener("change", filterQuestions);
 };
