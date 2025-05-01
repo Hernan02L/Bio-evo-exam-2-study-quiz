@@ -1097,7 +1097,15 @@ const allQuestions = [
     ...lecture16Questions,
     ...lecture17Questions
 ];
-
+// Add this at the VERY TOP of your script
+if (!Array.isArray(allQuestions) || allQuestions.length === 0) {
+    console.error("Questions failed to load!");
+    document.getElementById("quiz-box").innerHTML = `
+        <h2>Configuration Error</h2>
+        <p>No questions found. Please check the question data.</p>
+    `;
+    throw new Error("Question data not loaded");
+}
 // ... (keep all question arrays and allQuestions declaration)
 
 let filteredQuestions = [];
