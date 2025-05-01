@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOL 123 Interactive Quiz</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1><i class="fas fa-flask"></i> BIOL 123 Quiz</h1>
+            <div class="lecture-selector">
+                <select id="lecture-select">
+                    <option value="all">All Lectures</option>
+                    <option value="10">Lecture 10</option>
+                    <option value="11">Lecture 11</option>
+                    <option value="12">Lecture 12</option>
+                    <option value="13">Lecture 13</option>
+                    <option value="14">Lecture 14</option>
+                    <option value="15">Lecture 15</option>
+                    <option value="16">Lecture 16</option>
+                    <option value="17">Lecture 17</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-text" id="progress-text">0/0</div>
+        </div>
+
+        <div id="quiz-box">
+            <div class="question-card">
+                <div id="question"></div>
+                <div id="choices" class="choices-grid"></div>
+                <div id="feedback" class="feedback-box"></div>
+            </div>
+        </div>
+
+        <div class="quiz-footer">
+            <div class="score-box">
+                Score: <span id="score">0</span>/<span id="total">0</span>
+            </div>
+            <button id="next-btn" class="btn-primary" onclick="nextQuestion()">
+                Next Question <i class="fas fa-arrow-right"></i>
+            </button>
+            <button onclick="resetQuiz()" class="btn-secondary">
+                <i class="fas fa-sync-alt"></i> Restart
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
