@@ -1106,26 +1106,86 @@ function shuffle(array) {
     return array;
 }
 
+// Updated loadQuestion function
 function loadQuestion() {
     const q = filteredQuestions[currentQuestion];
-    document.getElementById("question").textContent = q.question;
+    const questionEl = document.getElementById("question");
     const choicesDiv = document.getElementById("choices");
+    const feedbackEl = document.getElementById("feedback");
+    
+    // Clear previous content
+    questionEl.textContent = q.question;
     choicesDiv.innerHTML = "";
-    
-    if (q.type === "mcq") {
-        q.choices.forEach((choice, index) => {
-            const btn = document.createElement("button");
-            btn.className = "choice-btn";
-            btn.textContent = choice;
-            btn.onclick = () => checkAnswer(index, btn);
-            choicesDiv.appendChild(btn);
-        });
+    feedbackEl.innerHTML = "";
+    feedbackEl.className = "feedback-box";
+
+    // Handle different question types
+    switch(q.type) {
+        case "mcq":
+            q.choices.forEach((choice, index) => {
+                const btn = document.createElement("button");
+                btn.className = "choice-btn";
+                btn.textContent = choice;
+                btn.onclick = () => checkAnswer(index, btn);
+                choicesDiv.appendChild(btn);
+            });
+            break;
+
+        case "multi-select":
+            q.choices.forEach((choice, index) => {
+                const container = document.createElement("div");
+                container.className = "multi-choice";
+                
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.id = `choice-${index}`;
+                checkbox.value = index;
+                
+                const label = document.createElement("label");
+                label.htmlFor = `choice-${index}`;
+                label.textContent = choice;
+                
+                container.appendChild(checkbox);
+                container.appendChild(label);
+                choicesDiv.appendChild(container);
+            });
+            break;
+
+        case "shortanswer":
+            const textarea = document.createElement("textarea");
+            textarea.className = "short-answer-input";
+            textarea.placeholder = "Type your answer here...";
+            choicesDiv.appendChild(textarea);
+            break;
     }
-    
-    document.getElementById("feedback").textContent = "";
+
     document.getElementById("next-btn").style.display = "none";
-    document.getElementById("total").textContent = filteredQuestions.length;
     updateProgress();
+}
+
+// Add this CSS to your style.css
+.multi-choice {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.multi-choice input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+.short-answer-input {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    margin-top: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 16px;
 }
 
 function checkAnswer(selected, buttonEl) {
