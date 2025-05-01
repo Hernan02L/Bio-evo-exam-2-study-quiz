@@ -1163,31 +1163,6 @@ function loadQuestion() {
     updateProgress();
 }
 
-// Add this CSS to your style.css
-.multi-choice {
-    margin: 10px 0;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.multi-choice input[type="checkbox"] {
-    margin-right: 10px;
-    transform: scale(1.2);
-}
-
-.short-answer-input {
-    width: 100%;
-    height: 100px;
-    padding: 10px;
-    margin-top: 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    resize: vertical;
-    font-family: inherit;
-    font-size: 16px;
-}
-
 function checkAnswer(selected, buttonEl) {
     const q = filteredQuestions[currentQuestion];
     const feedback = document.getElementById("feedback");
