@@ -1,52 +1,79 @@
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --correct-color: #4cc9f0;
+    --incorrect-color: #f72585;
+    --text-color: #2b2d42;
+    --light-bg: #f8f9fa;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f0f4f8;
-    margin: 0;
-    padding: 0;
+/* [Previous CSS content remains exactly the same as in the last version] */
+
+/* Add these new styles for multi-select and short answer */
+#choices div {
+    margin: 8px 0;
     display: flex;
     align-items: center;
-    justify-content: center;
-    min-height: 100vh;
 }
-.container {
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    width: 95%;
-    max-width: 650px;
+
+#choices input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
 }
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-select, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    font-size: 16px;
-}
-.choice-btn {
+
+#choices textarea {
     width: 100%;
     padding: 12px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 5px;
-    background: #f0f0f0;
-    cursor: pointer;
-    transition: background 0.3s;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 100px;
+    margin-top: 10px;
 }
-.choice-btn:hover {
-    background: #d8d8d8;
+
+.partial-credit {
+    color: #ff9800;
 }
-.correct {
-    background-color: #c8e6c9 !important;
+
+/* Enhanced feedback styles */
+.feedback-box.correct {
+    background-color: rgba(76, 201, 240, 0.1);
+    border-left: 4px solid var(--correct-color);
 }
-.incorrect {
-    background-color: #ffcdd2 !important;
+
+.feedback-box.incorrect {
+    background-color: rgba(247, 37, 133, 0.1);
+    border-left: 4px solid var(--incorrect-color);
 }
-#feedback {
+
+.feedback-box.partial {
+    background-color: rgba(255, 152, 0, 0.1);
+    border-left: 4px solid #ff9800;
+}
+
+.keyword-hint {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 10px;
+}
+
+/* True/False container */
+.truefalse-container {
+    display: flex;
+    gap: 15px;
     margin-top: 15px;
-    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    #choices textarea {
+        min-height: 80px;
+    }
+    
+    .truefalse-container {
+        flex-direction: column;
+        gap: 8px;
+    }
 }
